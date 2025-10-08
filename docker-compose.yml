@@ -9,7 +9,7 @@ services:
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     ports:
-      - "3306:3306"
+      - "127.0.0.1:3307:3306" # Secure: DB only accessible from the server host on port 3307
     volumes:
       - db_data:/var/lib/mysql
 
@@ -21,8 +21,8 @@ services:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     ports:
-      - "9000:9000" # API
-      - "9001:9001" # Console
+      - "9002:9000" # Public: Required for public image URLs, now on port 9002
+      - "127.0.0.1:9003:9001" # Secure: MinIO console only accessible from the server host on port 9003
     volumes:
       - minio_data:/data
     command: server /data --console-address ":9001"
@@ -37,7 +37,7 @@ services:
       - db
       - minio
     ports:
-      - "8080:8080"
+      - "8081:8080" # Public: The application API endpoint, now on port 8081
     environment:
       # Database connection
       SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/${MYSQL_DATABASE}?useSSL=false&allowPublicKeyRetrieval=true
@@ -48,7 +48,8 @@ services:
       MINIO_ACCESS_KEY: ${MINIO_ROOT_USER}
       MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
       MINIO_BUCKET_NAME: images
-      MINIO_PUBLIC_URL: http://localhost:9000
+      # IMPORTANT: Replace with your server's public IP or domain name
+      MINIO_PUBLIC_URL: http://srv559732.hstgr.cloud:9002
       # JWT Secret
       JWT_SECRET: ${JWT_SECRET}
 
