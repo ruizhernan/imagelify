@@ -93,10 +93,16 @@ public class SightengineServiceImpl implements ContentModerationService {
 
     private boolean isContentInappropriate(Map<String, Object> responseMap, String category) {
         Object categoryResponse = responseMap.get(category);
+        if (categoryResponse == null) {
+            return false; // Category not present in response, assume it's safe.
+        }
+
         if (categoryResponse instanceof Map) {
             // For models like nudity that have sub-fields
-            double rawScore = (Double) ((Map<?, ?>) categoryResponse).get("raw");
-            return rawScore > 0.5;
+            Object rawScore = ((Map<?, ?>) categoryResponse).get("raw");
+            if (rawScore instanceof Double) {
+                return (Double) rawScore > 0.5;
+            }
         } else if (categoryResponse instanceof Double) {
             // For models like weapon, violence that return a single probability
             return (Double) categoryResponse > 0.5;
