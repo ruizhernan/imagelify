@@ -4,6 +4,7 @@ import imagelify.api.entity.Image;
 import imagelify.api.entity.User;
 import imagelify.api.repository.ImageRepository;
 import imagelify.api.repository.UserRepository;
+import imagelify.api.service.ContentModerationService;
 import imagelify.api.service.ImageService;
 import imagelify.api.service.StorageService;
 import lombok.RequiredArgsConstructor;
@@ -20,9 +21,13 @@ public class ImageServiceImpl implements ImageService {
     private final StorageService storageService;
     private final ImageRepository imageRepository;
     private final UserRepository userRepository;
+    private final ContentModerationService contentModerationService;
 
     @Override
     public Image uploadImage(MultipartFile file, Long userId) {
+        // 1. Validate image content before anything else
+        contentModerationService.checkImageForInappropriateContent(file);
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -58,3 +63,4 @@ public class ImageServiceImpl implements ImageService {
         return imageRepository.findByUser(user);
     }
 }
+

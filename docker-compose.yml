@@ -50,6 +50,9 @@ services:
       MINIO_BUCKET_NAME: images
       # IMPORTANT: Replace with your server's public IP or domain name
       MINIO_PUBLIC_URL: http://srv559732.hstgr.cloud:9002
+      # Sightengine Credentials
+      SIGHTENGINE_API_USER: ${SIGHTENGINE_API_USER}
+      SIGHTENGINE_API_SECRET: ${SIGHTENGINE_API_SECRET}
       # JWT Secret
       JWT_SECRET: ${JWT_SECRET}
 

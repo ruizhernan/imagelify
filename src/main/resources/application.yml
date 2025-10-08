@@ -19,5 +19,9 @@ minio:
   bucket-name: ${MINIO_BUCKET_NAME}
   public-url: ${MINIO_PUBLIC_URL}
 
+sightengine:
+  api-user: ${SIGHTENGINE_API_USER}
+  api-secret: ${SIGHTENGINE_API_SECRET}
+
 jwt:
   secret: ${JWT_SECRET}
