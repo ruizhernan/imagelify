@@ -2,6 +2,8 @@ package imagelify.api.service.impl;
 
 import imagelify.api.entity.Image;
 import imagelify.api.entity.User;
+import imagelify.api.exception.ImageLimitExceededException;
+import imagelify.api.exception.PlanUpgradeException;
 import imagelify.api.repository.ImageRepository;
 import imagelify.api.repository.UserRepository;
 import imagelify.api.service.ContentModerationService;
@@ -31,15 +33,22 @@ public class ImageServiceImpl implements ImageService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        // Define the size limit for free plans (3MB)
+        long freePlanMaxSize = 3 * 1024 * 1024;
+
         if (user.getPlan() != null) {
-            // Check if the user has reached the image limit
+            // Check for file size limit on FREE plan
+            if ("FREE".equalsIgnoreCase(user.getPlan().getName()) && file.getSize() > freePlanMaxSize) {
+                throw new PlanUpgradeException("File size exceeds the 3MB limit for the FREE plan. Please upgrade your plan for larger uploads.");
+            }
+
+            // Check if the user has reached the image upload limit for their plan
             if (user.getPlan().getMaxImages() != null) {
                 long imageCount = imageRepository.countByUser(user);
                 if (imageCount >= user.getPlan().getMaxImages()) {
-                    throw new RuntimeException("Image upload limit reached for your plan.");
+                    throw new ImageLimitExceededException("Image upload limit reached for your plan.");
                 }
             }
-
         }
 
         String fileUrl = storageService.uploadFile(file);
